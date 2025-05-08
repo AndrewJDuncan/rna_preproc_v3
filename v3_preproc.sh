@@ -4,7 +4,7 @@ set -euo pipefail
 
 # Activate the conda environment
 source ~/miniforge3/etc/profile.d/conda.sh
-conda activate rna-tools
+mamba activate rna-tools
 
 # ========== CONFIGURATION ==========
 THREADS=32
