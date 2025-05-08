@@ -2,9 +2,12 @@
 
 set -euo pipefail
 
+# SAFELY initialize LD_LIBRARY_PATH to avoid 'unbound variable' error
+export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
+
 # Activate the conda environment
 source ~/miniforge3/etc/profile.d/conda.sh
-mamba activate rna-tools
+conda activate rna-tools
 
 # ========== CONFIGURATION ==========
 THREADS=32
