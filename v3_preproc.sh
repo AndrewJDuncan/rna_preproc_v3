@@ -28,13 +28,9 @@ for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   # ========== PHIX REMOVAL ==========
   echo "Running hts_SeqScreener on $SAMPLE"
-  hts_SeqScreener phix \
-    -1 "$R1" \
-    -2 "$R2" \
-    -t "$THREADS" \
-    -f \
-    -P \
-    -o "$INTERMEDIATE_DIR"
+  cd "$intermediate_dir" || exit 1
+  hts_SeqScreener phix -1 "$R1" -2 "$R2" -t "$THREADS"
+  cd - || exit 1
   if [[ $? -ne 0 ]]; then
     echo "ERROR: hts_SeqScreener failed on $SAMPLE" >&2
     exit 1
