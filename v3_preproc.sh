@@ -34,6 +34,7 @@ for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
     hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -F > "$STATS1"
 
     # ========== PHIX REMOVAL ==========
+    echo "Running hts_SeqScreener phix -1 $R1 -2 $R2 -t $THREADS $PHIX_R1 $PHIX_R2 -F"
     hts_SeqScreener phix -1 "$R1" -2 "$R2" -t "$THREADS" "$PHIX_R1" "$PHIX_R2" -F
 
     # ========== QC STATS AFTER (PHIX) ==========
