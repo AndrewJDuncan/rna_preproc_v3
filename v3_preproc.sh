@@ -1,57 +1,56 @@
 #!/bin/bash
 
-set -euo pipefail
-
-# SAFELY initialize LD_LIBRARY_PATH to avoid 'unbound variable' error
-export LD_LIBRARY_PATH="${LD_LIBRARY_PATH:-}"
-
-# Activate the conda environment
+# ===== Activate Conda Environment =====
 source ~/miniforge3/etc/profile.d/conda.sh
-conda activate rna-tools
+conda activate rna-tools || { echo "Failed to activate conda env 'rna-tools'" >&2; exit 1; }
 
-# ========== CONFIGURATION ==========
+# ===== Config =====
 THREADS=32
-RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata"
-PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc"
-INTERMEDIATE_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files"
+RAW_DIR=/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata
+INTERMEDIATE_DIR=/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files
+PREPROC_DIR=/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc
 
 mkdir -p "$PREPROC_DIR" "$INTERMEDIATE_DIR"
 
-# ========== PROCESS EACH SAMPLE ==========
 for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
-    BASENAME=$(basename "$R1" _R1_001.fastq.gz)
-    R2="$RAW_DIR/${BASENAME}_R2_001.fastq.gz"
-    SAMPLE="$BASENAME"
+  SAMPLE=$(basename "$R1" | sed 's/_R1_001.fastq.gz//')
+  R2="$RAW_DIR/${SAMPLE}_R2_001.fastq.gz"
 
-    echo -e "\n=========\nProcessing sample: $SAMPLE\n========="
+  echo -e "\n========="
+  echo "Processing sample: $SAMPLE"
+  echo "========="
 
-    STATS1="$INTERMEDIATE_DIR/${SAMPLE}_stats1.json"
-    STATS2="$PREPROC_DIR/${SAMPLE}_stats2.json"
-    PHIX_R1="$INTERMEDIATE_DIR/${SAMPLE}_phix_R1.fastq.gz"
-    PHIX_R2="$INTERMEDIATE_DIR/${SAMPLE}_phix_R2.fastq.gz"
+  STATS1="$INTERMEDIATE_DIR/${SAMPLE}_stats1.json"
+  STATS2="$INTERMEDIATE_DIR/${SAMPLE}_stats2.json"
 
-    # ========== QC STATS BEFORE ==========
-    hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -F > "$STATS1"
+  # ========== QC STATS BEFORE ========== 
+  hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -o "$STATS1" -F
 
-    # ========== PHIX REMOVAL ==========
-    echo "==== Checking variables before PHIX removal ===="
-    echo "R1: $R1"
-    echo "R2: $R2"
-    echo "PHIX_R1: $PHIX_R1"
-    echo "PHIX_R2: $PHIX_R2"
-    echo "THREADS: $THREADS"
-    echo "Running: hts_SeqScreener phix -1 $R1 -2 $R2 -t $THREADS $PHIX_R1 $PHIX_R2 -F"
-    echo "Running hts_SeqScreener..."
-    hts_SeqScreener phix -1 "$R1" -2 "$R2" -t "$THREADS" -o "$PHIX_R1" -O "$PHIX_R2" -F
-    if [[ $? -ne 0 ]]; then
-        echo "ERROR: hts_SeqScreener failed. Exiting." >&2
-        exit 1
-    fi
+  # ========== PHIX REMOVAL ==========
+  echo "Running hts_SeqScreener on $SAMPLE"
+  hts_SeqScreener phix \
+    -1 "$R1" \
+    -2 "$R2" \
+    -t "$THREADS" \
+    -f \
+    -P \
+    -o "$INTERMEDIATE_DIR"
+  if [[ $? -ne 0 ]]; then
+    echo "ERROR: hts_SeqScreener failed on $SAMPLE" >&2
+    exit 1
+  fi
 
-    # ========== QC STATS AFTER (PHIX) ==========
-    hts_Stats -t "$THREADS" -1 "$PHIX_R1" -2 "$PHIX_R2" -F > "$STATS2"
+  # ===== Locate generated files =====
+  PHIX_R1="$INTERMEDIATE_DIR/$(basename "$R1" .fastq.gz)_phix_R1.fastq.gz"
+  PHIX_R2="$INTERMEDIATE_DIR/$(basename "$R2" .fastq.gz)_phix_R2.fastq.gz"
 
-    # Add more processing steps here as needed, following the same pattern.
+  if [[ ! -f "$PHIX_R1" || ! -f "$PHIX_R2" ]]; then
+    echo "ERROR: Expected phix-cleaned files not found for $SAMPLE" >&2
+    exit 1
+  fi
 
-    echo "Sample $SAMPLE complete."
+  # ========== QC STATS AFTER PHIX ==========
+  hts_Stats -t "$THREADS" -1 "$PHIX_R1" -2 "$PHIX_R2" -o "$STATS2" -F
+
+  echo "Sample $SAMPLE complete."
 done
