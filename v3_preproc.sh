@@ -24,7 +24,7 @@ for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
   STATS2="$INTERMEDIATE_DIR/${SAMPLE}_stats2.json"
 
   # ========== QC STATS BEFORE ========== 
-  hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -o "$STATS1" -F
+  hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -F > "$STATS1"
 
   # ========== PHIX REMOVAL ==========
   echo "Running hts_SeqScreener on $SAMPLE"
