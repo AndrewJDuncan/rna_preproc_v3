@@ -41,7 +41,12 @@ for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
     echo "PHIX_R2: $PHIX_R2"
     echo "THREADS: $THREADS"
     echo "Running: hts_SeqScreener phix -1 $R1 -2 $R2 -t $THREADS $PHIX_R1 $PHIX_R2 -F"
-    hts_SeqScreener phix -1 "$R1" -2 "$R2" -t "$THREADS" "$PHIX_R1" "$PHIX_R2" -F
+    echo "Running hts_SeqScreener..."
+    hts_SeqScreener phix -1 "$R1" -2 "$R2" -t "$THREADS" -o "$PHIX_R1" -O "$PHIX_R2" -F
+    if [[ $? -ne 0 ]]; then
+        echo "ERROR: hts_SeqScreener failed. Exiting." >&2
+        exit 1
+    fi
 
     # ========== QC STATS AFTER (PHIX) ==========
     hts_Stats -t "$THREADS" -1 "$PHIX_R1" -2 "$PHIX_R2" -F > "$STATS2"
