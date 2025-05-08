@@ -2,6 +2,10 @@
 
 set -euo pipefail
 
+# Activate the conda environment
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate rna-tools
+
 # ========== CONFIGURATION ==========
 THREADS=32
 RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata"
