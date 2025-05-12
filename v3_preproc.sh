@@ -4,6 +4,9 @@
 source ~/miniforge3/etc/profile.d/conda.sh
 conda activate rna-tools || { echo "Failed to activate conda env 'rna-tools'" >&2; exit 1; }
 
+# === Ensure HTStream tools are available ===
+export PATH=~/miniforge3/envs/rna-tools/bin:$PATH
+
 # ===== Config =====
 THREADS=32
 RAW_DIR=/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata
