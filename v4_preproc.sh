@@ -49,11 +49,28 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
     --read2-out="$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
     --log="$INTER_DIR/${SAMPLE}_extract.log" || { echo "UMI extraction failed for $SAMPLE" >&2; exit 1; }
 
+  # ----- Step 3.5: Clean FASTQs -----
+  echo "[3.5] Cleaning reads (polyA/T trimming, N removal, length filter)..."
+
+  # Trim polyA/T tails (≥10bp A/T at ends), remove Ns, and filter short reads
+  bbduk.sh \
+    in1="$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
+    in2="$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
+    out1="$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
+    out2="$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
+    ref=polyA.fa.gz \
+    k=13 ktrim=r \
+    hdist=1 \
+    minlength=50 \
+    maxns=20 \
+    qtrim=r trimq=10 \
+    stats="$INTER_DIR/${SAMPLE}_bbduk_cleaning.txt"
+
   # ----- Step 4: Align to genome (example placeholder) -----
   echo "[4/6] Aligning with HISAT2..."
   hisat2 -p 8 -x /raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references/hg38_index \
-  -1 "$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
-  -2 "$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
+  -1 "$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
+  -2 "$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
   | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
 
   # Added: sort and index the BAM
