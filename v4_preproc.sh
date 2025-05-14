@@ -9,7 +9,7 @@ conda activate rna-tools || { echo "Failed to activate conda env 'rna-tools'" >&
 RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata"
 INTER_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files"
 PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc"
-PHIX_REF="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references/phix174_ill.ref.fa"
+PHIX_REF="/raid/VIDRL-USERS/HOME/aduncan/bbmap/resources/phix174_ill.ref.fa.gz"
 
 mkdir -p "$INTER_DIR" "$PREPROC_DIR"
 
