@@ -60,7 +60,7 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
     in2="$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
     out1="$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
     out2="$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
-    ref=polyA.fa.gz \
+    ref="$REFERENCE_DIR/polyA.fa.gz" \
     k=13 ktrim=r \
     hdist=1 \
     minlength=50 \
