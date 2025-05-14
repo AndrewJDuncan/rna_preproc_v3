@@ -52,6 +52,9 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   # ----- Step 3.5: Clean FASTQs -----
   echo "[3.5] Cleaning reads (polyA/T trimming, N removal, length filter)..."
 
+  # Fix for unbound LD_LIBRARY_PATH issue
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}
+
   # Trim polyA/T tails (≥10bp A/T at ends), remove Ns, and filter short reads
   bbduk.sh \
     in1="$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
