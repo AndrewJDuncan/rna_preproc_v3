@@ -56,6 +56,9 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   -2 "$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
   | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
 
+  # Added: index the BAM
+  samtools index "$INTER_DIR/${SAMPLE}_aligned.bam"
+
   # ----- Step 5: Deduplicate -----
   echo "[5/6] Deduplicating UMIs..."
   umi_tools dedup \
