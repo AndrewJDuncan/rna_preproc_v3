@@ -1,9 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# ===== Activate Conda Environment =====
+# Safely activate Conda
+set +u
 source ~/miniforge3/etc/profile.d/conda.sh
-conda activate rna-tools || { echo "Failed to activate conda env 'rna-tools'" >&2; exit 1; }
+conda activate rna-tools
+set -u
 
 # ===== Define Directories =====
 RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata"
@@ -51,9 +53,6 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   # ----- Step 3.5: Clean FASTQs -----
   echo "[3.5] Cleaning reads (polyA/T trimming, N removal, length filter)..."
-
-  # Fix for unbound LD_LIBRARY_PATH issue
-  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:-}
 
   # Trim polyA/T tails (≥10bp A/T at ends), remove Ns, and filter short reads
   bbduk.sh \
