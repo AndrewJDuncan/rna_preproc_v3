@@ -32,10 +32,8 @@ for R1 in "$RAW_DIR"/*_R1_001.fastq.gz; do
   # ========== Stats + PhiX Removal ==========
   echo "Running hts_Stats + hts_SeqScreener (PhiX removal)"
   hts_Stats -t "$THREADS" -1 "$R1" -2 "$R2" -F -L "$STATS1" |
-  hts_SeqScreener phix \
-    -A "$STATS1" \
-    -f "$PHIX_PREFIX" \
-    -F
+  hts_SeqScreener phix -A "$STATS1" -F |
+  hts_SeqOut -f "$PHIX_PREFIX" -F
 
   PHIX_R1="${PHIX_PREFIX}_R1.fastq.gz"
   PHIX_R2="${PHIX_PREFIX}_R2.fastq.gz"
