@@ -56,7 +56,9 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   -2 "$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
   | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
 
-  # Added: index the BAM
+  # Added: sort and index the BAM
+  samtools sort -o "$INTER_DIR/${SAMPLE}_aligned_sorted.bam" "$INTER_DIR/${SAMPLE}_aligned.bam"
+  mv "$INTER_DIR/${SAMPLE}_aligned_sorted.bam" "$INTER_DIR/${SAMPLE}_aligned.bam"
   samtools index "$INTER_DIR/${SAMPLE}_aligned.bam"
 
   # ----- Step 5: Deduplicate -----
