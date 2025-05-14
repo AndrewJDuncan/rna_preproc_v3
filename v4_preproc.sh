@@ -51,10 +51,10 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   # ----- Step 4: Align to genome (example placeholder) -----
   echo "[4/6] Aligning with HISAT2..."
-  hisat2 -p 8 -x /raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references/hisat2_index/genome \
-    -1 "$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
-    -2 "$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
-    | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
+  hisat2 -p 8 -x /raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references/hg38_index \
+  -1 "$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
+  -2 "$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
+  | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
 
   # ----- Step 5: Deduplicate -----
   echo "[5/6] Deduplicating UMIs..."
