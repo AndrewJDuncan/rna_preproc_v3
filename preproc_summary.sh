@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 # define directories
 INTER_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files"
