@@ -10,7 +10,7 @@ printf "%-30s\t%-15s\t%-15s\t%-10s\n" "Sample" "Initial_Reads" "Final_Reads" "%_
 echo "Sample,Initial_Reads,Final_Reads,Percent_Retained" > "$CSV_OUTFILE"
 
 # ===== MAIN LOOP =====
-for stats1 in "$PREPROC_DIR"/*_stats1.json; do
+for stats1 in "$PREPROC_DIR"/*_stats1.json*; do
     [[ -e "$stats1" ]] || continue  # skip if no files match
     sample=$(basename "$stats1" _stats1.json)
     stats2="$PREPROC_DIR/${sample}_stats2.json"
