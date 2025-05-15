@@ -1,40 +1,45 @@
 #!/bin/bash
+set -euo pipefail
 
-INTERMED_DIR=~/projects/rna_pipeline/mgp_test_data/intermediary_files
-PREPROC_DIR=~/projects/rna_pipeline/mgp_test_data/preproc
-OUT_CSV="$PREPROC_DIR/read_summary.csv"
+# ===== Define Directories =====
+RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawdata"
+INTER_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files"
+PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc"
 
-echo -e "\n=========  SUMMARY TABLE (CSV)  ========="
-printf "%-30s %-15s %-15s %-12s\n" "Sample" "Initial_Reads" "Final_Reads" "%_Retained"
-echo "Sample,Initial_Reads,Final_Reads,Percent_Retained" > "$OUT_CSV"
+echo -e "Sample\tRaw_Reads\tAfter_PhiX\tAfter_UMI_Extract\tAfter_Cleaning\tAfter_Alignment\tAfter_Dedup"
 
-shopt -s nullglob
-for INITIAL_FILE in "$INTERMED_DIR"/*_initial_read_lines.txt; do
-    BASENAME=$(basename "$INITIAL_FILE")
-    SAMPLE="${BASENAME%_initial_read_lines.txt}"
+for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
+  SAMPLE=$(basename "$R1_FILE" | sed 's/_R1_001.fastq.gz//')
 
-    INIT=$(head -n 1 "$INITIAL_FILE" | tr -dc '0-9')
-    FINAL_FILE="$INTERMED_DIR/${SAMPLE}_final_read_lines.txt"
+  # Raw input reads
+  RAW_READS=$(zcat "$RAW_DIR/${SAMPLE}_R1_001.fastq.gz" | wc -l)
+  RAW_READS=$((RAW_READS / 4))
 
-    if [[ -f "$FINAL_FILE" ]]; then
-        FINAL=$(head -n 1 "$FINAL_FILE" | tr -dc '0-9')
-    else
-        FINAL="MISSING"
-    fi
+  # After PhiX removal
+  PHIX_READS=$(zcat "$INTER_DIR/${SAMPLE}_R1_nophi.fastq.gz" | wc -l)
+  PHIX_READS=$((PHIX_READS / 4))
 
-    if [[ "$INIT" =~ ^[0-9]+$ ]] && [[ "$FINAL" =~ ^[0-9]+$ ]]; then
-        INIT_READS=$((INIT / 4))
-        FINAL_READS=$((FINAL / 4))
-        RETAINED=$(awk "BEGIN { printf \"%.1f\", 100 * $FINAL_READS / $INIT_READS }")
-    else
-        INIT_READS="N/A"
-        FINAL_READS="N/A"
-        RETAINED="N/A"
-    fi
+  # After UMI extraction
+  UMI_READS=$(zcat "$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" | wc -l)
+  UMI_READS=$((UMI_READS / 4))
 
-    printf "%-30s %-15s %-15s %-12s\n" "$SAMPLE" "$INIT_READS" "$FINAL_READS" "$RETAINED"
-    echo "$SAMPLE,$INIT_READS,$FINAL_READS,$RETAINED" >> "$OUT_CSV"
+  # After cleaning
+  CLEANED_READS=$(zcat "$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" | wc -l)
+  CLEANED_READS=$((CLEANED_READS / 4))
+
+  # After alignment (read pairs)
+  if [[ -f "$INTER_DIR/${SAMPLE}_aligned.bam" ]]; then
+    ALIGNED_READS=$(samtools view -c -f 1 "$INTER_DIR/${SAMPLE}_aligned.bam")  # -f 1 = paired
+  else
+    ALIGNED_READS="NA"
+  fi
+
+  # After deduplication
+  if [[ -f "$PREPROC_DIR/${SAMPLE}_dedup.bam" ]]; then
+    DEDUP_READS=$(samtools view -c -f 1 "$PREPROC_DIR/${SAMPLE}_dedup.bam")
+  else
+    DEDUP_READS="NA"
+  fi
+
+  echo -e "${SAMPLE}\t${RAW_READS}\t${PHIX_READS}\t${UMI_READS}\t${CLEANED_READS}\t${ALIGNED_READS}\t${DEDUP_READS}"
 done
-shopt -u nullglob
-
-echo -e "\nCSV summary written to: $OUT_CSV"
