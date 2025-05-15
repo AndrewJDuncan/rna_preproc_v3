@@ -14,6 +14,7 @@ PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/
 PHIX_REF="/raid/VIDRL-USERS/HOME/aduncan/bbmap/resources/phix174_ill.ref.fa.gz"
 REFERENCE_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references"
 POLYA_REF="/raid/VIDRL-USERS/HOME/aduncan/bbmap/resources/polyA.fa.gz"
+THREADS=32
 
 mkdir -p "$INTER_DIR" "$PREPROC_DIR"
 
@@ -39,7 +40,7 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
     out1="$INTER_DIR/${SAMPLE}_R1_nophi.fastq.gz" \
     out2="$INTER_DIR/${SAMPLE}_R2_nophi.fastq.gz" \
     ref="$PHIX_REF" \
-    k=31 hdist=1 \
+    k=31 hdist=1 threads=$THREADS \
     stats="$INTER_DIR/${SAMPLE}_phix_removal.txt" || { echo "PhiX removal failed for $SAMPLE" >&2; exit 1; }
 
   # ----- Step 3: Extract UMIs -----
@@ -65,6 +66,7 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
       tbo tpe \
       minlength=50 maxns=20 \
       qtrim=r trimq=10 \
+      threads=$THREADS \
       stats="$INTER_DIR/${SAMPLE}_bbduk_cleaning.txt" || { echo "Read cleaning failed for $SAMPLE" >&2; exit 1; }
   
     # ----- Step 5: Align to genome -----
@@ -72,11 +74,11 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   hisat2 -p 8 -x /raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references/hg38_index \
   -1 "$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
   -2 "$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
-  | samtools view -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
+  | samtools view -@ $THREADS -bS - > "$INTER_DIR/${SAMPLE}_aligned.bam"
 
   # ----- Step 6: sort and index the BAM -----
   echo "[6/8] Sorting and indexing BAM..."
-  samtools sort -o "$INTER_DIR/${SAMPLE}_aligned_sorted.bam" "$INTER_DIR/${SAMPLE}_aligned.bam"
+  samtools sort -@ $THREADS -o "$INTER_DIR/${SAMPLE}_aligned_sorted.bam" "$INTER_DIR/${SAMPLE}_aligned.bam"
   mv "$INTER_DIR/${SAMPLE}_aligned_sorted.bam" "$INTER_DIR/${SAMPLE}_aligned.bam"
   samtools index "$INTER_DIR/${SAMPLE}_aligned.bam"
 
