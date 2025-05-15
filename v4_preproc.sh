@@ -13,6 +13,7 @@ INTER_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/in
 PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc"
 PHIX_REF="/raid/VIDRL-USERS/HOME/aduncan/bbmap/resources/phix174_ill.ref.fa.gz"
 REFERENCE_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/references"
+POLYA_REF="/raid/VIDRL-USERS/HOME/aduncan/bbmap/resources/polyA.fa.gz"
 
 mkdir -p "$INTER_DIR" "$PREPROC_DIR"
 
@@ -60,7 +61,7 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
     in2="$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
     out1="$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
     out2="$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
-    ref=polyA.fa.gz \
+    ref="$POLYA_REF"
     k=13 ktrim=r \
     hdist=1 \
     minlength=50 \
@@ -91,7 +92,7 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   # ----- Step 8: Final stats -----
   echo "[8/8] Final cleaned FASTQ read count..."
-  zcat "$CLEANED_R1" "$CLEANED_R2" | wc -l > "$INTER_DIR/${SAMPLE}_final_read_lines.txt"
+  zcat "$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" "$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" | wc -l > "$INTER_DIR/${SAMPLE}_final_read_lines.txt"
   echo "$SAMPLE: Cleaned read count = $(($(cat "$INTER_DIR/${SAMPLE}_final_read_lines.txt") / 4))" > "$INTER_DIR/${SAMPLE}_final_stats.txt"
   
 
