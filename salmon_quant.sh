@@ -16,9 +16,9 @@ OUTPUT_DIR="$HOME/projects/rna_pipeline/mgp_test_data/salmon_quant"
 mkdir -p "$OUTPUT_DIR"
 
 # ===== Run Salmon for Each Sample =====
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo "~ Salmon running quantification <*)))<""
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "Salmon running quantification <*)))<"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 for R1 in "$INPUT_DIR"/*_R1_cleaned.fastq.gz; do
   SAMPLE=$(basename "$R1" | sed 's/_R1_cleaned.fastq.gz//')
   R2="$INPUT_DIR/${SAMPLE}_R2_cleaned.fastq.gz"
