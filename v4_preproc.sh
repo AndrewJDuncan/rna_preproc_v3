@@ -96,23 +96,3 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   echo "✅ Sample $SAMPLE processed successfully."
 done
-
-# summary script
-echo -e "\n========= Summary (from cleaned FASTQs) ========="
-printf "%-30s %-15s %-15s %-12s\n" "Sample" "Initial_Reads" "Final_Reads" "%_Retained"
-
-for INITIAL_FILE in "$INTER_DIR"/*_initial_read_lines.txt; do
-  SAMPLE=$(basename "$INITIAL_FILE" | sed 's/_initial_read_lines.txt//')
-  INIT=$(cat "$INITIAL_FILE" | tr -dc '0-9')
-  FINAL_FILE="$INTER_DIR/${SAMPLE}_final_read_lines.txt"
-
-  if [[ -f "$FINAL_FILE" ]]; then
-    FINAL=$(cat "$FINAL_FILE" | tr -dc '0-9')
-    INIT_READS=$((INIT / 4))
-    FINAL_READS=$((FINAL / 4))
-    RETAINED=$(awk "BEGIN { printf \"%.1f\", 100 * $FINAL_READS / $INIT_READS }")
-    printf "%-30s %-15s %-15s %-12s\n" "$SAMPLE" "$INIT_READS" "$FINAL_READS" "$RETAINED"
-  else
-    printf "%-30s %-15s %-15s %-12s\n" "$SAMPLE" "$INIT_READS" "MISSING" "N/A"
-  fi
-done
