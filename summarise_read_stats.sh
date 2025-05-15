@@ -14,22 +14,26 @@ for INITIAL_FILE in "$INTERMED_DIR"/*_initial_read_lines.txt; do
     SAMPLE="${BASENAME%_initial_read_lines.txt}"
 
     INIT=$(head -n 1 "$INITIAL_FILE" | tr -dc '0-9')
-    FINAL_JSON="$PREPROC_DIR/${SAMPLE}_stats2.json"
+    FINAL_FILE="$INTERMED_DIR/${SAMPLE}_final_read_lines.txt"
 
-    if [[ -f "$FINAL_JSON" ]]; then
-        FINAL=$(jq '.in1_read_count' "$FINAL_JSON" 2>/dev/null)
+    if [[ -f "$FINAL_FILE" ]]; then
+        FINAL=$(head -n 1 "$FINAL_FILE" | tr -dc '0-9')
     else
         FINAL="MISSING"
     fi
 
     if [[ "$INIT" =~ ^[0-9]+$ ]] && [[ "$FINAL" =~ ^[0-9]+$ ]]; then
-        RETAINED=$(awk "BEGIN { printf \"%.1f\", ($FINAL/$INIT)*100 }")
+        INIT_READS=$((INIT / 4))
+        FINAL_READS=$((FINAL / 4))
+        RETAINED=$(awk "BEGIN { printf \"%.1f\", 100 * $FINAL_READS / $INIT_READS }")
     else
+        INIT_READS="N/A"
+        FINAL_READS="N/A"
         RETAINED="N/A"
     fi
 
-    printf "%-30s %-15s %-15s %-12s\n" "$SAMPLE" "$INIT" "$FINAL" "$RETAINED"
-    echo "$SAMPLE,$INIT,$FINAL,$RETAINED" >> "$OUT_CSV"
+    printf "%-30s %-15s %-15s %-12s\n" "$SAMPLE" "$INIT_READS" "$FINAL_READS" "$RETAINED"
+    echo "$SAMPLE,$INIT_READS,$FINAL_READS,$RETAINED" >> "$OUT_CSV"
 done
 shopt -u nullglob
 
