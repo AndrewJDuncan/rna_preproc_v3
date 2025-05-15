@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # ===== Activate Conda =====
-# Put hash/comment before below these lines if samtools isn't in path
+# Comment out these lines if samtools is already in your PATH
 set +u
 source ~/miniforge3/etc/profile.d/conda.sh
 conda activate rna-tools
@@ -13,8 +13,12 @@ RAW_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/rawd
 INTER_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/intermediary_files"
 PREPROC_DIR="/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/mgp_test_data/preproc"
 
-echo -e "Sample\tRaw_Reads\tAfter_PhiX\t%_Retained\tAfter_UMI_Extract\t%_Retained\tAfter_Cleaning\t%_Retained\tAligned_Reads\t%_Retained\tDedup_Reads\t%_Retained"
+# ===== Print header =====
+printf "%-20s %12s %12s %10s %18s %10s %18s %10s %15s %10s %15s %10s\n" \
+"Sample" "Raw_Reads" "After_PhiX" "%_Ret" "After_UMI_Extract" "%_Ret" \
+"After_Cleaning" "%_Ret" "Aligned_Reads" "%_Ret" "Dedup_Reads" "%_Ret"
 
+# ===== Loop through samples =====
 for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   SAMPLE=$(basename "$R1_FILE" | sed 's/_R1_001.fastq.gz//')
 
@@ -50,13 +54,19 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   # ---- After Deduplication ----
   if [[ -f "$PREPROC_DIR/${SAMPLE}_dedup.bam" ]]; then
     DEDUP_READS=$(samtools view -c -f 1 "$PREPROC_DIR/${SAMPLE}_dedup.bam")
-    TOTAL_ALIGNED_READS=$((ALIGNED_READS * 2))
-    DEDUP_PCT=$(awk -v a=$TOTAL_ALIGNED_READS -v b=$DEDUP_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
+    if [[ "$ALIGNED_READS" != "NA" ]]; then
+      TOTAL_ALIGNED_READS=$((ALIGNED_READS * 2))
+      DEDUP_PCT=$(awk -v a=$TOTAL_ALIGNED_READS -v b=$DEDUP_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
+    else
+      DEDUP_PCT="NA"
+    fi
   else
     DEDUP_READS="NA"
     DEDUP_PCT="NA"
   fi
 
-  # ---- Print result ----
-  echo -e "${SAMPLE}\t${RAW_READS}\t${PHIX_READS}\t${PHIX_PCT}%\t${UMI_READS}\t${UMI_PCT}%\t${CLEANED_READS}\t${CLEANED_PCT}%\t${ALIGNED_READS}\t${ALIGN_PCT}%\t${DEDUP_READS}\t${DEDUP_PCT}%"
+  # ---- Print result row ----
+  printf "%-20s %12s %12s %10s %18s %10s %18s %10s %15s %10s %15s %10s\n" \
+  "$SAMPLE" "$RAW_READS" "$PHIX_READS" "${PHIX_PCT}%" "$UMI_READS" "${UMI_PCT}%" \
+  "$CLEANED_READS" "${CLEANED_PCT}%" "$ALIGNED_READS" "${ALIGN_PCT}%" "$DEDUP_READS" "${DEDUP_PCT}%"
 done
