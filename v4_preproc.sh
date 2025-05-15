@@ -96,3 +96,13 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
   echo "✅ Sample $SAMPLE processed successfully."
 done
+
+echo -e "\n=============================="
+echo "Generating summary of read retention at each step"
+echo "=============================="
+
+# Run summary script
+/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/v2pipeline/summarise_read_counts.sh > "$PREPROC_DIR/read_counts_summary.tsv"
+
+# Optionally also show in terminal:
+column -t "$PREPROC_DIR/read_counts_summary.tsv"
