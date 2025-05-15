@@ -55,19 +55,19 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
 
     # ----- Step 4: Clean FASTQs -----
     # Trim polyA/T tails (≥10bp A/T at ends), remove Ns, and filter short reads
-  echo "[4/8] Cleaning reads (polyA/T trimming, N removal, length filter)..."
+  # ----- Step 3: Cleaning reads (adapters, polyA/T, Ns, short reads, quality) -----
+  echo "[3/8] Cleaning reads (adapters, polyA/T, N filtering, quality trimming)..."
   bbduk.sh \
-    in1="$INTER_DIR/${SAMPLE}_R1_extracted.fastq.gz" \
-    in2="$INTER_DIR/${SAMPLE}_R2_extracted.fastq.gz" \
+    in1="$INTER_DIR/${SAMPLE}_R1_nophi.fastq.gz" \
+    in2="$INTER_DIR/${SAMPLE}_R2_nophi.fastq.gz" \
     out1="$INTER_DIR/${SAMPLE}_R1_cleaned.fastq.gz" \
     out2="$INTER_DIR/${SAMPLE}_R2_cleaned.fastq.gz" \
-    ref="$POLYA_REF"
-    k=13 ktrim=r \
-    hdist=1 \
-    minlength=50 \
-    maxns=20 \
+    ref=adapters,"$POLYA_REF" \
+    k=23 mink=11 ktrim=r hdist=1 \
+    tbo tpe \
+    minlength=50 maxns=20 \
     qtrim=r trimq=10 \
-    stats="$INTER_DIR/${SAMPLE}_bbduk_cleaning.txt"
+    stats="$INTER_DIR/${SAMPLE}_bbduk_cleaning.txt" || { echo "Read cleaning failed for $SAMPLE" >&2; exit 1; }
 
     # ----- Step 5: Align to genome (example placeholder) -----
   echo "[5/8] Aligning with HISAT2..."
