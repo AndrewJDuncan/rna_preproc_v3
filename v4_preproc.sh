@@ -102,7 +102,7 @@ echo "Generating summary of read retention at each step"
 echo "=============================="
 
 # Run summary script
-/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/v2pipeline/summarise_read_counts.sh > "$PREPROC_DIR/read_counts_summary.tsv"
+/raid/VIDRL-USERS/HOME/aduncan/projects/rna_pipeline/v2preproc_scripts/summarise_read_counts.sh > "$PREPROC_DIR/read_counts_summary.tsv"
 
-# Optionally also show in terminal:
+# Show in terminal:
 column -t "$PREPROC_DIR/read_counts_summary.tsv"
