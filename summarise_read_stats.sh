@@ -40,7 +40,8 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   # ---- After Alignment ----
   if [[ -f "$INTER_DIR/${SAMPLE}_aligned.bam" ]]; then
     ALIGNED_READS=$(samtools view -c -f 1 "$INTER_DIR/${SAMPLE}_aligned.bam")
-    ALIGN_PCT=$(awk -v a=$CLEANED_READS -v b=$ALIGNED_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
+    TOTAL_CLEANED_READS=$((CLEANED_READS * 2))
+    ALIGN_PCT=$(awk -v a=$TOTAL_CLEANED_READS -v b=$ALIGNED_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
   else
     ALIGNED_READS="NA"
     ALIGN_PCT="NA"
@@ -49,7 +50,8 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   # ---- After Deduplication ----
   if [[ -f "$PREPROC_DIR/${SAMPLE}_dedup.bam" ]]; then
     DEDUP_READS=$(samtools view -c -f 1 "$PREPROC_DIR/${SAMPLE}_dedup.bam")
-    DEDUP_PCT=$(awk -v a=$ALIGNED_READS -v b=$DEDUP_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
+    TOTAL_ALIGNED_READS=$((ALIGNED_READS * 2))
+    DEDUP_PCT=$(awk -v a=$TOTAL_ALIGNED_READS -v b=$DEDUP_READS 'BEGIN { printf("%.1f", (b/a)*100) }')
   else
     DEDUP_READS="NA"
     DEDUP_PCT="NA"
