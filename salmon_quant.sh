@@ -20,7 +20,7 @@ mkdir -p "$OUTPUT_DIR"
   echo "Salmon running quantification <*)))<"
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 for R1 in "$INPUT_DIR"/*_cleaned_R1.fastq.gz; do
-  SAMPLE=$(basename "$R1" | sed 's/_R1_cleaned.fastq.gz//')
+  SAMPLE=$(basename "$R1" | sed 's/_cleaned_R1.fastq.gz//')
   R2="$INPUT_DIR/${SAMPLE}_cleaned_R2.fastq.gz"
 
   echo -e "\n=============================="
