@@ -112,6 +112,19 @@ for R1_FILE in "$RAW_DIR"/*_R1_001.fastq.gz; do
   echo "✅ Sample $SAMPLE processed successfully."
 done
 
+# ===== Generate samples.txt from cleaned FASTQ files =====
+echo -e "\n=============================="
+echo "Generating samples.txt based on cleaned FASTQs"
+echo "=============================="
+
+ls "$PREPROC_DIR"/*_cleaned_R1.fastq.gz \
+  | xargs -n 1 basename \
+  | sed 's/_cleaned_R1.fastq.gz//' \
+  | sort > "$PREPROC_DIR/samples.txt"
+
+echo "✅ samples.txt written to $PREPROC_DIR"
+
+
  echo -e "\n=============================="
  echo "Generating summary of read retention at each step"
  echo "=============================="
