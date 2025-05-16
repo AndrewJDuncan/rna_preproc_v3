@@ -23,7 +23,7 @@ echo '🔄 Combining gene IDs and counts into table...'
 paste "$TMP_DIR/geneids.txt" "$TMP_DIR"/*.count > "$TMP_DIR/tmp.out"
 
 echo '🔄 Adding header row using sorted samples.txt...'
-SAMPLES_FILE="$BASE_DIR/samples.txt"
+SAMPLES_FILE="$BASE_DIR/preproc/samples.txt"
 HEADER=$(cat "$SAMPLES_FILE" | sort | paste -s)
 echo -e "gene_id\t$HEADER" > "$COUNTS_DIR/mgptestdata_counts.txt"
 cat "$TMP_DIR/tmp.out" >> "$COUNTS_DIR/mgptestdata_counts.txt"
